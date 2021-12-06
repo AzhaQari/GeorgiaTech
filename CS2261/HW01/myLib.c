@@ -1,0 +1,25 @@
+#include "myLib.h"
+
+volatile unsigned short *videoBuffer = (unsigned short *)0x6000000;
+
+void setPixel(int col, int row, unsigned short color) {
+    videoBuffer[OFFSET(col, row, SCREENWIDTH)] = color;
+}
+
+void drawRect(int col, int row, int width, int height, unsigned short color) {
+    // TODO #1: implement this function
+    int i, j;
+    for (i = 0; i < width; i++) {
+        for (j = 0; j < height; j++) {
+            videoBuffer[OFFSET(col + i, row + j, 240)] = color; 
+        }
+    }
+}
+
+void fillScreen(unsigned short color) {
+    // TODO #2: implement this function
+    // note: you may only use a single loop
+    for (int i = 0; i < 38400; i++) {
+        videoBuffer[i] = color;
+    }
+}
