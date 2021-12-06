@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane id="AnchorPane" prefHeight="587.0" prefWidth="915.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="farming.MarketController">
+   <children>
+      <TableView fx:id="inventory_table" layoutX="14.0" layoutY="90.0" prefHeight="439.0" prefWidth="390.0">
+        <columns>
+          <TableColumn fx:id="i_item" prefWidth="135.0" text="Item Name" />
+          <TableColumn fx:id="i_price" prefWidth="111.0" text="Price" />
+            <TableColumn fx:id="quantity" prefWidth="143.0" text="Quantity" />
+        </columns>
+      </TableView>
+      <Label alignment="CENTER" contentDisplay="CENTER" graphicTextGap="8.0" layoutX="90.0" prefHeight="53.0" prefWidth="660.0" text="Market" textAlignment="CENTER">
+         <font>
+            <Font name="Times New Roman Bold" size="36.0" />
+         </font>
+      </Label>
+      <TableView fx:id="market_table" layoutX="429.0" layoutY="90.0" prefHeight="439.0" prefWidth="239.0">
+         <columns>
+            <TableColumn fx:id="m_item" prefWidth="125.0" text="Item Name" />
+            <TableColumn fx:id="m_price" prefWidth="113.0" text="Price" />
+         </columns>
+      </TableView>
+      <Label alignment="CENTER" layoutX="14.0" layoutY="47.0" prefHeight="43.0" prefWidth="315.0" text="Inventory">
+         <font>
+            <Font size="22.0" />
+         </font>
+      </Label>
+      <Label alignment="CENTER" layoutX="430.0" layoutY="47.0" prefHeight="43.0" prefWidth="474.0" text="MARKET">
+         <font>
+            <Font size="22.0" />
+         </font>
+      </Label>
+      <Button layoutX="277.0" layoutY="539.0" mnemonicParsing="false" onAction="#sell" prefHeight="35.0" prefWidth="85.0" text="Sell">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Button>
+      <Button layoutX="376.0" layoutY="539.0" mnemonicParsing="false" onAction="#buy" prefHeight="35.0" prefWidth="85.0" text="Buy">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Button>
+      <Label fx:id="money" layoutX="736.0" layoutY="541.0" prefHeight="35.0" prefWidth="166.0" text="Total Money: 100">
+         <font>
+            <Font name="Bell MT Bold" size="19.0" />
+         </font>
+      </Label>
+      <Button layoutX="179.0" layoutY="539.0" mnemonicParsing="false" onAction="#back" prefHeight="39.0" prefWidth="85.0" text="Back">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Button>
+      <Label fx:id="capacity" layoutX="14.0" layoutY="541.0" prefHeight="35.0" prefWidth="153.0" text="Capacity: ">
+         <font>
+            <Font name="Bell MT Bold" size="18.0" />
+         </font>
+      </Label>
+      <TableView fx:id="seed_table" layoutX="689.0" layoutY="90.0" prefHeight="439.0" prefWidth="215.0">
+        <columns>
+          <TableColumn fx:id="seed_col" prefWidth="106.0" text="Seed" />
+          <TableColumn fx:id="price_col" prefWidth="107.0" text="Price" />
+        </columns>
+      </TableView>
+      <RadioButton fx:id="ItemR" layoutX="590.0" layoutY="546.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="56.0" text="Item">
+         <toggleGroup>
+            <ToggleGroup fx:id="table" />
+         </toggleGroup>
+      </RadioButton>
+      <RadioButton fx:id="SeedR" layoutX="659.0" layoutY="550.0" mnemonicParsing="false" text="Seed" toggleGroup="$table" />
+      <Button layoutX="478.0" layoutY="539.0" mnemonicParsing="false" onAction="#update" prefHeight="35.0" prefWidth="85.0" text="Update">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Button>
+   </children>
+</AnchorPane>
