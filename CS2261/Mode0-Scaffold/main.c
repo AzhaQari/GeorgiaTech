@@ -1,0 +1,225 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include "myLib.h"
+#include "screenStates.h"
+#include "pauseScreen.h"
+#include "background.h"
+#include "winScreen.h"
+#include "loseScreen.h"
+#include "frogger.h"
+#include "game.h"
+#include "log.h"
+
+
+// Prototypes
+void initialize();
+
+// State Prototypes
+void goToStart();
+void start();
+void goToGame();
+void game();
+void goToPause();
+void pause();
+void goToWin();
+void win();
+void goToLose();
+void lose();
+
+// States
+enum
+{
+    START,
+    GAME,
+    PAUSE,
+    WIN,
+    LOSE
+};
+int state;
+
+// Button Variables
+unsigned short buttons;
+unsigned short oldButtons;
+
+// Offsets
+unsigned short hOff;
+
+// Seed Variable
+int seed;
+
+// Shadow OAM
+OBJ_ATTR shadowOAM[128];
+
+// text buffer 
+char buffer[41];
+
+int main()
+{
+    initialize();
+
+    while (1)
+    {
+        // Update button variables
+        oldButtons = buttons;
+        buttons = BUTTONS;
+
+        // State Machine
+        switch (state)
+        {
+        case START:
+            start();
+            break;
+        case GAME:
+            game();
+            break;
+        case PAUSE:
+            pause();
+            break;
+        case WIN:
+            win();
+            break;
+        case LOSE:
+            lose();
+            break;
+        }
+        DMANow(3, shadowOAM, OAM, sizeof(shadowOAM) / 2);
+    }
+}
+
+// Sets up GBA
+void initialize()
+{
+    REG_DISPCTL = MODE0 | BG0_ENABLE | SPRITE_ENABLE; // Bitwise OR the BG(s) you want to use and Bitwise OR SPRITE_ENABLE if you want to use sprites
+    // Don't forget to set up whatever BGs you enabled in the line above!
+
+    //Loads the sprite's tiles and palette and then hides the sprites
+    DMANow(3, froggerPal, SPRITEPALETTE, froggerPalLen / 2);
+    DMANow(3, froggerTiles, &CHARBLOCK[4], froggerTilesLen);
+    for (int i = 0; i < 128; i++) {
+        shadowOAM[i].attr0 = ATTR0_HIDE;
+    }
+    
+    //REG_DISPCTL = MODE0 | BG0_ENABLE | SPRITE_ENABLE;
+    //hideSprites();
+    buttons = BUTTONS;
+    oldButtons = 0;
+
+    goToStart();
+}
+
+// Sets up the start state
+void goToStart() {
+    // load in start screen's palette
+    DMANow(3, screenStatesPal, PALETTE, 256);
+    REG_BG0CNT = BG_SIZE_SMALL | BG_CHARBLOCK(0) | BG_SCREENBLOCK(28);
+    DMANow(3, screenStatesTiles, &CHARBLOCK[0], screenStatesTilesLen / 2);
+    DMANow(3, screenStatesMap, &SCREENBLOCK[28], screenStatesMapLen / 2);
+    state = START;
+    //seed = 0;
+
+}
+
+// Runs every frame of the start state
+void start() {
+    //seed++;
+    hideSprites();
+    if (BUTTON_PRESSED(BUTTON_START)) {
+        //srand(seed);
+        goToGame();
+        initGame();
+    }
+
+    waitForVBlank();
+}
+
+// Sets up the game state
+void goToGame() {
+    DMANow(3, backgroundPal, PALETTE, 256);
+    REG_BG0CNT = BG_SIZE_SMALL | BG_CHARBLOCK(0) | BG_SCREENBLOCK(28);
+    DMANow(3, backgroundTiles, &CHARBLOCK[0], backgroundTilesLen/2);
+    DMANow(3, backgroundMap, &SCREENBLOCK[28], backgroundMapLen/2);
+    state = GAME;
+}
+
+// Runs every frame of the game state
+void game() {
+    if (BUTTON_PRESSED(BUTTON_START)){
+        goToPause();
+    }
+    if (BUTTON_PRESSED(BUTTON_SELECT)){
+        goToLose();
+    }
+    if (player.row <= 16) {
+        goToWin();
+    }
+
+    updateGame();
+    drawGame();
+    waitForVBlank();
+    DMANow(3, shadowOAM, OAM, 128*4);
+}
+
+// Sets up the pause state
+void goToPause() {
+    
+    REG_BG0CNT = BG_SIZE_SMALL | BG_CHARBLOCK(0) | BG_SCREENBLOCK(28);
+    DMANow(3, pauseScreenPal, PALETTE, 256);
+    DMANow(3, pauseScreenTiles, &CHARBLOCK[0], pauseScreenTilesLen/2);
+    DMANow(3, pauseScreenMap, &SCREENBLOCK[28], pauseScreenMapLen/2);
+
+    state = PAUSE;
+}
+
+// Runs every frame of the pause state
+void pause() {
+    hideSprites();
+    if (BUTTON_PRESSED(BUTTON_START)) {
+        goToGame();
+    }
+    else if (BUTTON_PRESSED(BUTTON_SELECT)) {
+        goToStart();
+    }
+}
+
+// Sets up the win state
+void goToWin() {
+    // Load win screen palette
+    DMANow(3, winScreenPal, PALETTE, 256);
+
+    REG_BG0CNT = BG_SIZE_SMALL | BG_CHARBLOCK(0) | BG_SCREENBLOCK(28);
+    
+    DMANow(3, winScreenTiles, &CHARBLOCK[0], winScreenTilesLen/2);
+    DMANow(3, winScreenMap, &SCREENBLOCK[28], winScreenMapLen/2);
+
+    state = WIN;
+}
+
+// Runs every frame of the win state
+void win() {
+    hideSprites();
+    // State transitions
+    if (BUTTON_PRESSED(BUTTON_START))
+        goToStart();
+}
+
+// Sets up the lose state
+void goToLose() {
+    // Load lose screen palette
+    DMANow(3, loseScreenPal, PALETTE, 256);
+
+    REG_BG0CNT = BG_SIZE_SMALL | BG_CHARBLOCK(0) | BG_SCREENBLOCK(28);
+
+    DMANow(3, loseScreenTiles, &CHARBLOCK[0], loseScreenTilesLen/2);
+    DMANow(3, loseScreenMap, &SCREENBLOCK[28], loseScreenMapLen/2);
+
+    state = LOSE;
+}
+
+// Runs every frame of the lose state
+void lose() {
+    hideSprites();
+    if (BUTTON_PRESSED(BUTTON_START)) {
+        goToStart();
+    }
+    
+}
